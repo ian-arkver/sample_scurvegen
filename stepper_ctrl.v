@@ -50,31 +50,31 @@ reg [19:0] steps_left = 0;
 reg busy = 0;
 
 always @(posedge clk)
-	if (reset)
-	begin
-		jerk <= 0;
-		dir <= 0;
-		zero_clear <= 0;
-		zero_stop <= 0;
-		total_steps <= 0;
-		c_jerk_dur <= 0;
-		c_accel_dur <= 0;
+    if (reset)
+    begin
+        jerk <= 0;
+        dir <= 0;
+        zero_clear <= 0;
+        zero_stop <= 0;
+        total_steps <= 0;
+        c_jerk_dur <= 0;
+        c_accel_dur <= 0;
     end
     else
-	if (spi_write)
-	begin
-		case (spi_waddr)
-		4'h0:	{zero_stop, zero_clear, dir, jerk} <= spi_wdata[JERK_WIDTH+2:0];
-		4'h1:	total_steps[15:0] <= spi_wdata;
-		4'h2:	c_jerk_dur[15:0]  <= spi_wdata;
-		4'h3:	c_accel_dur[15:0] <= spi_wdata;
-		4'h4:	{c_accel_dur[19:16], c_jerk_dur[19:16],
+    if (spi_write)
+    begin
+        case (spi_waddr)
+        4'h0:   {zero_stop, zero_clear, dir, jerk} <= spi_wdata[JERK_WIDTH+2:0];
+        4'h1:   total_steps[15:0] <= spi_wdata;
+        4'h2:   c_jerk_dur[15:0]  <= spi_wdata;
+        4'h3:   c_accel_dur[15:0] <= spi_wdata;
+        4'h4:   {c_accel_dur[19:16], c_jerk_dur[19:16],
                  total_steps[19:16]} <= spi_wdata[11:0];
         endcase
     end
 
 always @(posedge clk)
-	do_move <= ~reset & spi_write & spi_wdata[0] & (spi_waddr == 4'h5);
+    do_move <= ~reset & spi_write & spi_wdata[0] & (spi_waddr == 4'h5);
 
 localparam
     st_Idle = 4'h0,
@@ -93,13 +93,13 @@ begin
     spi_rdata <= 0;
 
     case (spi_raddr)
-    4'h0:	spi_rdata[JERK_WIDTH+2:0] <= {zero_stop, zero_clear, dir, jerk};
-    4'h1:	spi_rdata <= total_steps[15:0];
-    4'h2:	spi_rdata <= steps_left[15:0];
-    4'h3:	spi_rdata <= c_accel_dur[15:0];
-    4'h4:	spi_rdata <= {c_accel_dur[19:16], steps_left[19:16],
+    4'h0:   spi_rdata[JERK_WIDTH+2:0] <= {zero_stop, zero_clear, dir, jerk};
+    4'h1:   spi_rdata <= total_steps[15:0];
+    4'h2:   spi_rdata <= steps_left[15:0];
+    4'h3:   spi_rdata <= c_accel_dur[15:0];
+    4'h4:   spi_rdata <= {c_accel_dur[19:16], steps_left[19:16],
                           total_steps[19:16]};
-    4'h5:	spi_rdata <= {busy, 3'b0, state, 8'b0};
+    4'h5:   spi_rdata <= {busy, 3'b0, state, 8'b0};
     endcase
 end
 
